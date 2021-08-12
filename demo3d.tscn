@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Classic.tscn" type="PackedScene" id=1]
+
+[node name="Spatial" type="Spatial"]
+transform = Transform( 0.813974, -0.482901, 0.322883, 0.580902, 0.676652, -0.452432, 0, 0.555831, 0.831295, 0, 0, -0.125154 )
+
+[node name="Node2D" parent="." instance=ExtResource( 1 )]

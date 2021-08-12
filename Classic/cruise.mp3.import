@@ -1,0 +1,15 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+path="res://.import/cruise.mp3-f8cf09bec0382beb553ace1df1cb836f.mp3str"
+
+[deps]
+
+source_file="res://Classic/cruise.mp3"
+dest_files=[ "res://.import/cruise.mp3-f8cf09bec0382beb553ace1df1cb836f.mp3str" ]
+
+[params]
+
+loop=true
+loop_offset=0
