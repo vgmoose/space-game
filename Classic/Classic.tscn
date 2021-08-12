@@ -13,16 +13,17 @@ stream = ExtResource( 2 )
 [node name="Gamepad" type="TextureRect" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
-rect_scale = Vector2( 0.75, 0.75 )
+rect_scale = Vector2( 0.83, 0.83 )
 texture = ExtResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="TextureRect" type="TextureRect" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-rect_scale = Vector2( 2, 2 )
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
 __meta__ = {
 "_edit_use_anchors_": false
 }

@@ -9,9 +9,16 @@ var screenImage
 var screenTexture
 var editableScreen
 
+var SCALER = 2
+var windowSize
+var gamepad
+
 func _ready():
 	player = find_node("AudioStreamPlayer")
 	screenImage = find_node("TextureRect")
+	gamepad = find_node("Gamepad")
+	size_changed()
+	get_tree().get_root().connect("size_changed", self, "size_changed")
 	
 	var imageTexture = ImageTexture.new()
 	var dynImage = Image.new()
@@ -30,6 +37,21 @@ func _ready():
 var mySpaceGlobals
 var space
 
+func size_changed():
+	windowSize = get_viewport_rect().size
+	var width = 427
+	var height = 240
+
+	SCALER = max(min(int(windowSize.x / width), int(windowSize.y / height)), 1)
+	screenImage.rect_scale = Vector2(SCALER, SCALER)
+	screenImage.rect_position = Vector2(windowSize.x/2 - (width*SCALER)/2, windowSize.y/2 - (height*SCALER)/2)
+
+	gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
+	gamepad.rect_position = Vector2(
+		-gamepad.rect_scale.x*0.2237*gamepad.rect_size.x + screenImage.rect_position.x,
+		-gamepad.rect_scale.y*0.2393*gamepad.rect_size.y + screenImage.rect_position.y
+	)
+	print(gamepad.rect_position)
 #func _draw():
 #	if graphics.blackout != null:
 #		draw_rect(Rect2(0, 0, 427, 240), graphics.blackout)
@@ -145,11 +167,9 @@ func _process(delta):
 	mySpaceGlobals.touched = Input.is_mouse_button_pressed(1)
 
 	if (mySpaceGlobals.touched):
-		var pos = self.get_global_mouse_position()
-		mySpaceGlobals.touchX = pos.x / 2; #  (( / 9) - 11);
-		mySpaceGlobals.touchY = pos.y / 2; #  ((3930 - vpad_data.touched_y) / 16);
-		print(mySpaceGlobals.touchX, " ", mySpaceGlobals.touchY)
-
+		var pos = self.get_local_mouse_position()
+		mySpaceGlobals.touchX = (pos.x - screenImage.rect_position.x) / SCALER; #  (( / 9) - 11);
+		mySpaceGlobals.touchY = (pos.y - screenImage.rect_position.y) / SCALER; #  ((3930 - vpad_data.touched_y) / 16);
 	if (mySpaceGlobals.restart == 1):
 		space.reset(mySpaceGlobals);
 		mySpaceGlobals.restart = 0;
