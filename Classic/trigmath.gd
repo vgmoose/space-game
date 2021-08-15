@@ -15,17 +15,20 @@ func prand ():
   next *= 1103515245;
   next += 12345;
   result =  int(next / 65536) % 2048;
+  result = ~result
 
   next *= 1103515245;
   next += 12345;
   result <<= 10;
   result ^= int(next / 65536) % 1024;
+  result = ~result
 
   next *= 1103515245;
   next += 12345;
   result <<= 10;
   result ^= int(next / 65536) % 1024;
+  result = ~result
 
   xseed = next;
 
-  return result / 2147483647.0;
+  return abs(result / 2147483647.0);

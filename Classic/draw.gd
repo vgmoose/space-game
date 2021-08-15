@@ -38,6 +38,9 @@ func putAPixel(gr, x, y, r, g, b):
 #	gr.colors.append(Color(r/255.0, g/255.0, b/255.0))
 
 func drawString(g, xi, yi, string):
+	if not g.nxFont:
+		# the bitmap font is only used with the nxFont enabled
+		return
 	# for every character in the string, if it's within range, render it at the current position
 	# and move over 8 characters
 
@@ -51,16 +54,10 @@ func drawString(g, xi, yi, string):
 		# actually draw this char pixel by pixel, if it's within range
 		if (next >= 0 && next < 128):
 			var bitmap = font[next];
-#			var out = ""
 			for x in range(8):
 				for y in range(8):
 					if (bitmap[x] & 1 << y):
-#						out += "*"
 						putAPixel(g, xi+y+i*8, yi+x, 0xff, 0xff, 0xff)
-#					else:
-#						out += " "
-#				out += "\n"
-#			print(out)
 
 func fillScreen(gr, r, g, b, a):
 	gr.editableScreen.unlock()
@@ -107,6 +104,12 @@ func drawPixels(g, pixels):
 	for rx in range(200):
 		var x = pixels[rx].x;
 		var y = pixels[rx].y;
+
+		if g.spaceGlobals.state == 7 and y <= 20:
+			# if we're in game, and the star would've been in the upper region of the screen
+			# don't draw it. This is to simulate the black rectangle in the original game
+			# this space globals check is totally cheating btw!
+			continue
 
 		putAPixel(g, x, y, pixels[rx].r, pixels[rx].g, pixels[rx].b);
 

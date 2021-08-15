@@ -44,6 +44,19 @@ var boss2_palette = images.boss2_palette
 var draw
 var trigmath
 
+var BULLET_COUNT = 20
+
+func initBullets(mySpaceGlobals):
+	mySpaceGlobals.bullets = []
+	for x in range(BULLET_COUNT):
+		var bullet = {}
+		bullet.x = 0
+		bullet.y = 0
+		bullet.m_x = 0
+		bullet.m_y = 0
+		bullet.active = 0
+		mySpaceGlobals.bullets.append(bullet)
+
 func _init(mySpaceGlobals):
 	draw = Draw.new()
 	trigmath = PRandom.new(mySpaceGlobals.seed)
@@ -75,15 +88,7 @@ func _init(mySpaceGlobals):
 	decompress_sprite(511, 36, 36, images.compressed_ship, orig_ship, 14);
 	decompress_sprite(206, 23, 23, images.compressed_enemy, mySpaceGlobals.enemy, 9);
 	
-	mySpaceGlobals.bullets = []
-	for x in range(20):
-		var bullet = {}
-		bullet.x = 0
-		bullet.y = 0
-		bullet.m_x = 0
-		bullet.m_y = 0
-		bullet.active = 0
-		mySpaceGlobals.bullets.append(bullet)
+	initBullets(mySpaceGlobals)
 	
 	mySpaceGlobals.enemies = []
 	for x in range(MAX_ENEMIES):
@@ -91,6 +96,8 @@ func _init(mySpaceGlobals):
 		var pos = {}
 		pos.x = 0
 		pos.y = 0
+		pos.m_x = 0
+		pos.m_y = 0
 		pos.active = 1
 		enemy.position = pos
 		enemy.angle = 0
@@ -142,17 +149,22 @@ func p1Shoot(mySpaceGlobals):
 		# shoot a bullet
 		# find an inactive bullet
 		var theta = mySpaceGlobals.angle - PI;
-		for xx in range(20):
+		var bulletsShot = int(mySpaceGlobals.doubleShot)
+		for xx in range(BULLET_COUNT):
 			if (mySpaceGlobals.bullets[xx].active != 1):
-				mySpaceGlobals.bullets[xx].x = mySpaceGlobals.p1X + 18;
-				mySpaceGlobals.bullets[xx].y = mySpaceGlobals.p1Y + 18;
+				var offsetX = int(bulletsShot==1)*9*cos(-theta) - int(bulletsShot==2)*9*cos(-theta)
+				var offsetY = int(bulletsShot==1)*9*sin(-theta) - int(bulletsShot==2)*9*sin(-theta)
+				bulletsShot += 1
+				mySpaceGlobals.bullets[xx].x = mySpaceGlobals.p1X + 18 + offsetX;
+				mySpaceGlobals.bullets[xx].y = mySpaceGlobals.p1Y + 18 + offsetY;
 				mySpaceGlobals.bullets[xx].m_x = 9*sin(theta); # 9 is the desired bullet speed
 				mySpaceGlobals.bullets[xx].m_y = 9*cos(theta); # we have to solve for the hypotenuese
 				mySpaceGlobals.bullets[xx].active = 1;
 				mySpaceGlobals.firstShotFired = 1;
 				if (mySpaceGlobals.score >= 1000):
 					mySpaceGlobals.displayHowToPlay = 0;
-				break;
+				if not mySpaceGlobals.tripleShot or bulletsShot >= 3:
+					break;
 
 	moveBullets(mySpaceGlobals);
 
@@ -201,11 +213,10 @@ func p1Move(mySpaceGlobals):
 			mySpaceGlobals.displayHowToPlay = 1;
 
 func checkPause(mySpaceGlobals):
-	pass
-#	if (mySpaceGlobals.button & PAD_BUTTON_PLUS):
-#		# switch to the pause state and mark view as invalid
-#		mySpaceGlobals.state = 3;
-#		mySpaceGlobals.invalid = 1;
+	if (mySpaceGlobals.buttonPLUS):
+		# switch to the pause state and mark view as invalid
+		mySpaceGlobals.state = 3;
+		mySpaceGlobals.invalid = 1;
 
 func handleCollisions(mySpaceGlobals):
 
@@ -224,33 +235,33 @@ func handleCollisions(mySpaceGlobals):
 	if (playerDown > yMaxBoundry):
 		mySpaceGlobals.p1Y = yMaxBoundry - 36;
 
-		# check enemies if they collide with the player or any of the 20 active bullets
-		for x in range(MAX_ENEMIES):
-			if (mySpaceGlobals.enemies[x].position.active == 1):
-				# collision checkin from here: http:#stackoverflow.com/a/1736741/1137828
-				# check player
+	# check enemies if they collide with the player or any of the 20 active bullets
+	for x in range(MAX_ENEMIES):
+		if (mySpaceGlobals.enemies[x].position.active == 1):
+			# collision checkin from here: http:#stackoverflow.com/a/1736741/1137828
+			# check player
 
-				var sqMe1 = ((mySpaceGlobals.enemies[x].position.x+7)-(mySpaceGlobals.p1X+9));
-				var sqMe2 = ((mySpaceGlobals.enemies[x].position.y+7)-(mySpaceGlobals.p1Y+9));
+			var sqMe1 = ((mySpaceGlobals.enemies[x].position.x+7)-(mySpaceGlobals.p1X+9));
+			var sqMe2 = ((mySpaceGlobals.enemies[x].position.y+7)-(mySpaceGlobals.p1Y+9));
 
-				if (sqMe1*sqMe1 + sqMe2*sqMe2 <= (7+9)*(7+9)):
-					if (mySpaceGlobals.playerExplodeFrame < 1):
-						# player was hit
-						mySpaceGlobals.playerExplodeFrame = 2;
-						initGameState(mySpaceGlobals);
-				for y in range(20):
-					if (mySpaceGlobals.bullets[y].active == 1):
-						sqMe1 = ((mySpaceGlobals.enemies[x].position.x+7)-(mySpaceGlobals.bullets[y].x+1));
-						sqMe2 = ((mySpaceGlobals.enemies[x].position.y+7)-(mySpaceGlobals.bullets[y].y+1));
+			if (sqMe1*sqMe1 + sqMe2*sqMe2 <= (7+9)*(7+9)):
+				if (mySpaceGlobals.playerExplodeFrame < 1):
+					# player was hit
+					mySpaceGlobals.playerExplodeFrame = 2;
+					initGameState(mySpaceGlobals);
+			for y in range(BULLET_COUNT):
+				if (mySpaceGlobals.bullets[y].active == 1):
+					sqMe1 = ((mySpaceGlobals.enemies[x].position.x+7)-(mySpaceGlobals.bullets[y].x+1));
+					sqMe2 = ((mySpaceGlobals.enemies[x].position.y+7)-(mySpaceGlobals.bullets[y].y+1));
 
-						if (sqMe1*sqMe1 + sqMe2*sqMe2 <= (7+1)*(7+1)):
-							# enemy was hit, active = 2 is explode
-							increaseScore(mySpaceGlobals, 100); # 100 povars for killing enemy
-							mySpaceGlobals.enemies[x].position.active = 2;
+					if (sqMe1*sqMe1 + sqMe2*sqMe2 <= (7+1)*(7+1)):
+						# enemy was hit, active = 2 is explode
+						increaseScore(mySpaceGlobals, 100); # 100 points for killing enemy
+						mySpaceGlobals.enemies[x].position.active = 2;
 
-							# bullet is destroyed with enemy
-							mySpaceGlobals.bullets[y].active = 0;
-							break;
+						# bullet is destroyed with enemy
+						mySpaceGlobals.bullets[y].active = 0;
+						break;
 
 func makeScaleMatrix(frame, width, original, target, transIndex):
 
@@ -262,13 +273,13 @@ func makeScaleMatrix(frame, width, original, target, transIndex):
 	for x in range(width):
 		for y in range(width):
 			# rotate the pixel by the angle varo a new spot in the rotation matrix
-			var newx = (x-woffset)*frame + woffset;
-			var newy = (y-woffset)*frame + woffset;
-
-			if (original[newx][newy] == transIndex): continue;
-
+			var newx = int((x-woffset)*frame + woffset);
+			var newy = int((y-woffset)*frame + woffset);
+			
 			if (newx < 0 || newx >= width): continue;
 			if (newy < 0 || newy >= width): continue;
+
+			if (original[newx][newy] == transIndex): continue;
 
 			target[newx][newy] = original[x][y];
 
@@ -326,7 +337,7 @@ func makeRotationMatrix(angle, width, original, target, transIndex):
 func renderEnemies(mySpaceGlobals):
 
 	# for all active bullets, advance them
-	for x in range(20):
+	for x in range(BULLET_COUNT):
 		if (mySpaceGlobals.bullets[x].active == 1):
 			for z in range(4):
 				for za in range(2):
@@ -394,7 +405,7 @@ func decompress_sprite(arraysize, width, height, input, target, transIndex):
 func moveBullets(mySpaceGlobals):
 
 	# for all active bullets, advance them
-	for x in range(20):
+	for x in range(BULLET_COUNT):
 		if (mySpaceGlobals.bullets[x].active == 1):
 			mySpaceGlobals.bullets[x].x += mySpaceGlobals.bullets[x].m_x;
 			mySpaceGlobals.bullets[x].y += mySpaceGlobals.bullets[x].m_y;
@@ -430,7 +441,7 @@ func moveBullets(mySpaceGlobals):
 
 func renderTexts(mySpaceGlobals):
 
-	draw.fillRect(mySpaceGlobals.graphics, 0, 0, xMaxBoundry, 20, 0, 0, 0);
+#	draw.fillRect(mySpaceGlobals.graphics, 0, 0, xMaxBoundry, 20, 0, 0, 0);
 
 	var score
 	if (mySpaceGlobals.dontKeepTrackOfScore == 1):
@@ -638,7 +649,7 @@ func displayPause(mySpaceGlobals):
 		draw.drawString(mySpaceGlobals.graphics, 27, 13, resume);
 		draw.drawString(mySpaceGlobals.graphics, 28, 14, quit);
 
-		draw.drawMenuCursor(mySpaceGlobals);
+		drawMenuCursor(mySpaceGlobals);
 
 		draw.flipBuffers(mySpaceGlobals.graphics);
 		mySpaceGlobals.invalid = 0;
@@ -824,7 +835,7 @@ func totallyRefreshState(mySpaceGlobals):
 	mySpaceGlobals.enemiesSeekPlayer = 0;
 
 func displayGameOver(mySpaceGlobals):
-
+	
 	if (mySpaceGlobals.invalid == 1):
 		blackout(mySpaceGlobals.graphics);
 
@@ -834,10 +845,10 @@ func displayGameOver(mySpaceGlobals):
 		# only display score + pw if the player didn't use cheats
 		if (mySpaceGlobals.dontKeepTrackOfScore != 1):
 			var finalscore = "Score: %08d" % mySpaceGlobals.score
-#			var passw = "Lv %d Password: %05d" % (mySpaceGlobals.level+1, mySpaceGlobals.passwordList[mySpaceGlobals.level])
+			var passw = "Lv %d Password: %05d" % [mySpaceGlobals.level+1, mySpaceGlobals.passwordList[mySpaceGlobals.level]]
 
 			draw.drawString(mySpaceGlobals.graphics, 23, 7, finalscore);
-#			draw.drawString(mySpaceGlobals.graphics, 21, 8, passw);
+			draw.drawString(mySpaceGlobals.graphics, 21, 8, passw);
 
 		var resume = "Try Again"
 		var quit = "Quit"
@@ -845,11 +856,10 @@ func displayGameOver(mySpaceGlobals):
 		draw.drawString(mySpaceGlobals.graphics, 25, 13, resume);
 		draw.drawString(mySpaceGlobals.graphics, 28, 14, quit);
 
-		draw.drawMenuCursor(mySpaceGlobals);
+		self.drawMenuCursor(mySpaceGlobals);
 
 		draw.flipBuffers(mySpaceGlobals.graphics);
 		mySpaceGlobals.invalid = 0;
-	blackout(mySpaceGlobals.graphics);
 
 
 func tryPassword(mySpaceGlobals):
@@ -901,23 +911,33 @@ func tryPassword(mySpaceGlobals):
 		mySpaceGlobals.transIndex = 5;
 		mySpaceGlobals.state = 7;
 
-	# Play as JWittz
+	# double shot
 	if (mySpaceGlobals.passwordEntered == 24177):
-	
-		mySpaceGlobals.playerChoice = 1;
-		decompress_sprite(662, 36, 36, compressed_boss2, orig_ship, 39);
-		mySpaceGlobals.curPalette = boss2_palette;
-		mySpaceGlobals.transIndex = 39;
+		mySpaceGlobals.tripleShot = true
+		mySpaceGlobals.doubleShot = true
+		BULLET_COUNT = 60
+		initBullets(mySpaceGlobals)
+		mySpaceGlobals.dontKeepTrackOfScore = 1;
+#		mySpaceGlobals.playerChoice = 1;
+#		decompress_sprite(662, 36, 36, compressed_boss2, orig_ship, 39);
+#		mySpaceGlobals.curPalette = boss2_palette;
+#		mySpaceGlobals.transIndex = 39;
+		mySpaceGlobals.state = 7;
+#
+#	# triple shot
+	if (mySpaceGlobals.passwordEntered == 37124):
+		mySpaceGlobals.tripleShot = true
+		mySpaceGlobals.doubleShot = false
+		BULLET_COUNT = 100
+		initBullets(mySpaceGlobals)
+		# rest in peace Etika
+#		OS.shell_open("https://www.youtube.com/watch?v=1qX75J4_-e8")
+#		mySpaceGlobals.playerChoice = 2;
+#		decompress_sprite(740, 36, 36, compressed_boss, orig_ship, 39);
+#		mySpaceGlobals.curPalette = boss_palette;
+#		mySpaceGlobals.transIndex = 39;
 		mySpaceGlobals.state = 7;
 
-	# Play as Etika
-	if (mySpaceGlobals.passwordEntered == 37124):
-	
-		mySpaceGlobals.playerChoice = 2;
-		decompress_sprite(740, 36, 36, compressed_boss, orig_ship, 39);
-		mySpaceGlobals.curPalette = boss_palette;
-		mySpaceGlobals.transIndex = 39;
-		mySpaceGlobals.state = 7;
 
 	# Enemies come right for you (kamikaze mode)
 	if (mySpaceGlobals.passwordEntered == 30236):
@@ -940,6 +960,10 @@ func tryPassword(mySpaceGlobals):
 	
 		mySpaceGlobals.graphics.flipColor = !mySpaceGlobals.graphics.flipColor;
 		mySpaceGlobals.state = 27;
+		
+	# toggle the space nx bitmap font
+	if mySpaceGlobals.passwordEntered == 11111:
+		mySpaceGlobals.graphics.nxFont = not mySpaceGlobals.graphics.nxFont
 
 	# 100 passwords, one for each level
 	for x in range(100):

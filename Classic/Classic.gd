@@ -13,6 +13,8 @@ var SCALER = 2
 var windowSize
 var gamepad
 
+var initialized = false
+
 func _ready():
 	player = find_node("AudioStreamPlayer")
 	screenImage = find_node("TextureRect")
@@ -32,53 +34,19 @@ func _ready():
 	screenTexture = imageTexture
 	editableScreen = dynImage
 	
-	program_start()
-
-var mySpaceGlobals
-var space
-
-func size_changed():
-	windowSize = get_viewport_rect().size
-	var width = 427
-	var height = 240
-
-	SCALER = max(min(int(windowSize.x / width), int(windowSize.y / height)), 1)
-	screenImage.rect_scale = Vector2(SCALER, SCALER)
-	screenImage.rect_position = Vector2(windowSize.x/2 - (width*SCALER)/2, windowSize.y/2 - (height*SCALER)/2)
-
-	gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
-	gamepad.rect_position = Vector2(
-		-gamepad.rect_scale.x*0.2237*gamepad.rect_size.x + screenImage.rect_position.x,
-		-gamepad.rect_scale.y*0.2393*gamepad.rect_size.y + screenImage.rect_position.y
-	)
-	print(gamepad.rect_position)
-#func _draw():
-#	if graphics.blackout != null:
-#		draw_rect(Rect2(0, 0, 427, 240), graphics.blackout)
-#		graphics.blackout = null
-#
-#	if len(graphics.pixels) == 0 or len(graphics.colors) == 0 \
-#		or len(graphics.pixels) != len(graphics.colors):
-#		return
-#
-#	for x in range(len(graphics.pixels)):
-#		var pixel = graphics.pixels[x]
-#		var color = graphics.colors[x]
-#		draw_rect(Rect2(pixel.x, pixel.y, 1, 1), color)
-
-func program_start():
-#	print("Very first main entered\n");
-
-	graphics.pixels = []
-	graphics.colors = []
+	mySpaceGlobals = {}
+	mySpaceGlobals.playerChoice = 0
+	mySpaceGlobals.playerExplodeFrame = 0
+	mySpaceGlobals.noEnemies = false
 	
 	graphics.classicMain = self
+	graphics.nxFont = false
+	graphics.spaceGlobals = mySpaceGlobals
 	
 	graphics.editableScreen = editableScreen
 
 	graphics.flipColor = 0;
 
-	mySpaceGlobals = {};
 	mySpaceGlobals.graphics = graphics;
 #	print("Space globals initialized\n");
 
@@ -105,13 +73,38 @@ func program_start():
 	mySpaceGlobals.angle = 0
 	mySpaceGlobals.frame = 0
 	
+	mySpaceGlobals.tripleShot = false
+	mySpaceGlobals.doubleShot = false
+	
+	program_start()
 
+var mySpaceGlobals
+var space
 
+func size_changed():
+	windowSize = get_viewport_rect().size
+	var width = 427
+	var height = 240
+
+	SCALER = max(min(int(windowSize.x / width), int(windowSize.y / height)), 1)
+	screenImage.rect_scale = Vector2(SCALER, SCALER)
+	screenImage.rect_position = Vector2(windowSize.x/2 - (width*SCALER)/2, windowSize.y/2 - (height*SCALER)/2)
+
+	gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
+	gamepad.rect_position = Vector2(
+		-gamepad.rect_scale.x*0.2237*gamepad.rect_size.x + screenImage.rect_position.x,
+		-gamepad.rect_scale.y*0.2393*gamepad.rect_size.y + screenImage.rect_position.y
+	)
+
+func program_start():
+	initialized = true
+	
 	# setup the password list
 	var pwSeed = 27;
 	var trigmath = PRandom.new(pwSeed)
 	for x in range(100):
-		mySpaceGlobals.passwordList.append(int(trigmath.prand()*100000))
+		var levelCode = int(trigmath.prand()*100000)
+		mySpaceGlobals.passwordList.append(levelCode)
 
 #	print("About to set the time\n");
 	#  set the starting time
@@ -143,11 +136,22 @@ func program_start():
 	mySpaceGlobals.touched = 0
 	mySpaceGlobals.touchX = 0
 	mySpaceGlobals.touchY = 0
+	
+	mySpaceGlobals.level = 0
+	mySpaceGlobals.enemiesSeekPlayer = 0
+	mySpaceGlobals.dontKeepTrackOfScore = 0
+	mySpaceGlobals.score = 0
+	mySpaceGlobals.displayHowToPlay = false
+	
+#	Engine.set_target_fps(90)
 
 func _process(delta):
+	if not initialized:
+		program_start()
 	# redraw every frame, like old space game handled it
 	a += 1
-	
+#	Engine.set_target_fps(60)
+#	print(Engine.get_frames_per_second())
 	# get lock for drawing
 	editableScreen.lock()
 
@@ -158,6 +162,7 @@ func _process(delta):
 	mySpaceGlobals.buttonDOWN  = Input.is_action_pressed("ui_down")
 	mySpaceGlobals.buttonRIGHT = Input.is_action_pressed("ui_right")
 	mySpaceGlobals.buttonLEFT  = Input.is_action_pressed("ui_left")
+	mySpaceGlobals.buttonPLUS = Input.is_action_pressed("pause")
 
 	mySpaceGlobals.rstick_x = 0
 	mySpaceGlobals.lstick_x = 0
@@ -202,8 +207,8 @@ func _process(delta):
 		space.handleExplosions(mySpaceGlobals);
 
 		#  if we're out of lives, break
-#			if (mySpaceGlobals.lives <= 0 && mySpaceGlobals.state == 4):
-#				return
+		if (mySpaceGlobals.lives <= 0 && mySpaceGlobals.state == 4):
+			return
 
 		#  add any new enemies
 		space.addNewEnemies(mySpaceGlobals);
