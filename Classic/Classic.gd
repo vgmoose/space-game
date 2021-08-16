@@ -20,7 +20,7 @@ func _ready():
 	screenImage = find_node("TextureRect")
 	gamepad = find_node("Gamepad")
 	size_changed()
-	get_tree().get_root().connect("size_changed", self, "size_changed")
+	get_tree().get_root().connect("size_changed", self.size_changed)
 	
 	var imageTexture = ImageTexture.new()
 	var dynImage = Image.new()
@@ -34,47 +34,61 @@ func _ready():
 	screenTexture = imageTexture
 	editableScreen = dynImage
 	
-	mySpaceGlobals = {}
-	mySpaceGlobals.playerChoice = 0
-	mySpaceGlobals.playerExplodeFrame = 0
-	mySpaceGlobals.noEnemies = false
+	mySpaceGlobals = {
+		"buttonA": Input.is_action_pressed("ui_accept"),
+		"buttonB": Input.is_action_pressed("ui_cancel"),
+		"buttonUP": Input.is_action_pressed("ui_up"),
+		"buttonDOWN": Input.is_action_pressed("ui_down"),
+		"buttonRIGHT": Input.is_action_pressed("ui_right"),
+		"buttonLEFT": Input.is_action_pressed("ui_left"),
+		"buttonPLUS": Input.is_action_pressed("pause"),
+		"rstick_x": 0,
+		"lstick_x": 0,
+		"rstick_y": 0,
+		"lstick_y": 0,
+		"touched": Input.is_mouse_button_pressed(1),
+		"allowInput": 1
+	}
+	mySpaceGlobals["playerChoice"] = 0
+	mySpaceGlobals["playerExplodeFrame"] = 0
+	mySpaceGlobals["noEnemies"] = false
 	
-	graphics.classicMain = self
-	graphics.nxFont = false
-	graphics.spaceGlobals = mySpaceGlobals
+	graphics["classicMain"] = self
+	graphics["nxFont"] = false
+	graphics["spaceGlobals"] = mySpaceGlobals
 	
-	graphics.editableScreen = editableScreen
+	graphics["editableScreen"] = editableScreen
 
-	graphics.flipColor = 0;
+	graphics["flipColor"] = 0;
 
-	mySpaceGlobals.graphics = graphics;
+	mySpaceGlobals["graphics"] = graphics;
 #	print("Space globals initialized\n");
 
 	# Flag for restarting the entire game.
-	mySpaceGlobals.restart = 1;
+	mySpaceGlobals["restart"] = 1;
 
 	# initial state is title screen
-	mySpaceGlobals.state = 1;
-	mySpaceGlobals.titleScreenRefresh = 1;
+	mySpaceGlobals["state"] = 1;
+	mySpaceGlobals["titleScreenRefresh"] = 1;
 
 	# Flags for render states
-	mySpaceGlobals.renderResetFlag = 0;
-	mySpaceGlobals.menuChoice = 0; #  0 is play, 1 is password
+	mySpaceGlobals["renderResetFlag"] = 0;
+	mySpaceGlobals["menuChoice"] = 0; #  0 is play, 1 is password
 	
-	mySpaceGlobals.passwordList = []
-	mySpaceGlobals.title = null
-	mySpaceGlobals.orig_ship = null
-	mySpaceGlobals.enemy = null
+	mySpaceGlobals["passwordList"] = []
+	mySpaceGlobals["title"] = null
+	mySpaceGlobals["orig_ship"] = null
+	mySpaceGlobals["enemy"] = null
 	
-	mySpaceGlobals.lives = 4
+	mySpaceGlobals["lives"] = 4
 	
-	mySpaceGlobals.p1X = 0
-	mySpaceGlobals.p1Y = 0
-	mySpaceGlobals.angle = 0
-	mySpaceGlobals.frame = 0
+	mySpaceGlobals["p1X"] = 0
+	mySpaceGlobals["p1Y"] = 0
+	mySpaceGlobals["angle"] = 0
+	mySpaceGlobals["frame"] = 0
 	
-	mySpaceGlobals.tripleShot = false
-	mySpaceGlobals.doubleShot = false
+	mySpaceGlobals["tripleShot"] = false
+	mySpaceGlobals["doubleShot"] = false
 	
 	program_start()
 
@@ -105,11 +119,12 @@ func program_start():
 	for x in range(100):
 		var levelCode = int(trigmath.prand()*100000)
 		mySpaceGlobals.passwordList.append(levelCode)
+#	print(mySpaceGlobals.passwordList[1])
 
 #	print("About to set the time\n");
 	#  set the starting time
 	randomize()
-	mySpaceGlobals.seed = randi()
+	mySpaceGlobals["seed"] = randi()
 #	print("Set the time!\n");
 
 	var pad_data = {}
@@ -121,27 +136,27 @@ func program_start():
 #	print("Initialized space object")
 #
 #	#  setup palette and transparent index
-	mySpaceGlobals.curPalette = images.ship_palette;
-	mySpaceGlobals.transIndex = 14;
+	mySpaceGlobals["curPalette"] = images.ship_palette;
+	mySpaceGlobals["transIndex"] = 14;
 
-	mySpaceGlobals.passwordEntered = 0;
-	mySpaceGlobals.quit = 0;
+	mySpaceGlobals["passwordEntered"] = 0;
+	mySpaceGlobals["quit"] = 0;
 
 	#  initialize starfield for this game
 	space.initStars(mySpaceGlobals);
 
-	mySpaceGlobals.invalid = 1;
+	mySpaceGlobals["invalid"] = 1;
 #	print("About to enter main loop\n");
 #
-	mySpaceGlobals.touched = 0
-	mySpaceGlobals.touchX = 0
-	mySpaceGlobals.touchY = 0
+	mySpaceGlobals["touched"] = 0
+	mySpaceGlobals["touchX"] = 0
+	mySpaceGlobals["touchY"] = 0
 	
-	mySpaceGlobals.level = 0
-	mySpaceGlobals.enemiesSeekPlayer = 0
-	mySpaceGlobals.dontKeepTrackOfScore = 0
-	mySpaceGlobals.score = 0
-	mySpaceGlobals.displayHowToPlay = false
+	mySpaceGlobals["level"] = 0
+	mySpaceGlobals["enemiesSeekPlayer"] = 0
+	mySpaceGlobals["dontKeepTrackOfScore"] = 0
+	mySpaceGlobals["score"] = 0
+	mySpaceGlobals["displayHowToPlay"] = false
 	
 #	Engine.set_target_fps(90)
 
@@ -153,7 +168,7 @@ func _process(delta):
 #	Engine.set_target_fps(60)
 #	print(Engine.get_frames_per_second())
 	# get lock for drawing
-	editableScreen.lock()
+#	editableScreen.lock()
 
 	# Get the status of the controller
 	mySpaceGlobals.buttonA = Input.is_action_pressed("ui_accept")
@@ -219,8 +234,8 @@ func _process(delta):
 		#  check for pausing
 		space.checkPause(mySpaceGlobals);
 		
-	editableScreen.unlock()
-	screenTexture.set_data(editableScreen)
+#	editableScreen.unlock()
+#	screenTexture.set_data(editableScreen)
 	screenImage.texture = screenTexture
 
 	# To exit the game

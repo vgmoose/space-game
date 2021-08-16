@@ -1,4 +1,5 @@
 extends Node2D
+class_name Space
 
 # This class is a bit of a mess, but it basically does "everything else" in the game.
 # The most vareresting function is rotating the bitmap (makeRotationMatrix).
@@ -13,8 +14,6 @@ extends Node2D
 #
 # It relies heavily on a SpaceGlobals struct defined in space.h. This is a carry over from the libwiiu
 # pong example, but also I believe neccesary since global variables don't seem to be able to be set(?)
-
-class_name Space
 
 var xMinBoundry = 0
 var xMaxBoundry = 427
@@ -47,22 +46,23 @@ var trigmath
 var BULLET_COUNT = 20
 
 func initBullets(mySpaceGlobals):
-	mySpaceGlobals.bullets = []
+	mySpaceGlobals["bullets"] = []
 	for x in range(BULLET_COUNT):
-		var bullet = {}
-		bullet.x = 0
-		bullet.y = 0
-		bullet.m_x = 0
-		bullet.m_y = 0
-		bullet.active = 0
+		var bullet = {
+			"x": 0,
+			"y": 0,
+			"m_x": 0,
+			"m_y": 0,
+			"active": 0
+		}
 		mySpaceGlobals.bullets.append(bullet)
 
 func _init(mySpaceGlobals):
 	draw = Draw.new()
 	trigmath = PRandom.new(mySpaceGlobals.seed)
-	mySpaceGlobals.invalid = 1
+	mySpaceGlobals["invalid"]= 1
 	
-	mySpaceGlobals.enemy = []
+	mySpaceGlobals["enemy"] = []
 	
 	for x in range(36):
 		rotated_ship.append([])
@@ -90,23 +90,25 @@ func _init(mySpaceGlobals):
 	
 	initBullets(mySpaceGlobals)
 	
-	mySpaceGlobals.enemies = []
+	mySpaceGlobals["enemies"] = []
 	for x in range(MAX_ENEMIES):
-		var enemy = {}
-		var pos = {}
-		pos.x = 0
-		pos.y = 0
-		pos.m_x = 0
-		pos.m_y = 0
-		pos.active = 1
-		enemy.position = pos
-		enemy.angle = 0
+		var pos = {
+			"x": 0,
+			"y": 0,
+			"m_x": 0,
+			"m_y": 0,
+			"active": 1
+		}
+		var enemy = {
+			"position": pos,
+			"angle": 0
+		}
 		var rotated_sprite = []
 		for y in range(23):
 			rotated_sprite.append([])
 			for z in range(23):
 				rotated_sprite[len(rotated_sprite) - 1].append(0)
-		enemy.rotated_sprite = rotated_sprite
+		enemy["rotated_sprite"] = rotated_sprite
 		mySpaceGlobals.enemies.append(enemy)
 
 func blackout(g):
@@ -114,7 +116,7 @@ func blackout(g):
 
 func increaseScore(mySpaceGlobals, inc):
 
-	# count the number of 5000s that fit varo the score before adding
+	# count the number of 5000s that fit into the score before adding
 	var fiveThousandsBefore = mySpaceGlobals.score / 5000;
 
 	# increase the score
@@ -480,7 +482,7 @@ func renderStars(mySpaceGlobals):
 
 #Reset the game
 func reset(mySpaceGlobals):
-	mySpaceGlobals.button = 0;
+	mySpaceGlobals["button"] = 0;
 
 	#Set flag to render reset screen;
 	mySpaceGlobals.renderResetFlag = 1;
@@ -500,16 +502,17 @@ func initGameState(mySpaceGlobals):
 
 func initStars(mySpaceGlobals):
 
-	mySpaceGlobals.stars = []
+	mySpaceGlobals["stars"] = []
 
 	# create the stars randomly
 	for x in range(200):
-		var star = {}
-		star.x = 0
-		star.y = 0
-		star.r = 0
-		star.g = 0
-		star.b = 0
+		var star = {
+			"x": 0,
+			"y": 0,
+			"r": 0,
+			"g": 0,
+			"b": 0
+		}
 		mySpaceGlobals.stars.append(star)
 		mySpaceGlobals.stars[x].x = int(trigmath.prand()*xMaxBoundry);
 		mySpaceGlobals.stars[x].y = int(trigmath.prand()*yMaxBoundry);
@@ -658,11 +661,11 @@ enum { A, B, X, Y, Z, UP, DOWN, LEFT, RIGHT }
 func doPasswordMenuAction(mySpaceGlobals):
 
 	# if we've seen up, down, left, right, and a buttons not being pressed
-	if (!(mySpaceGlobals.buttonA     ||
-		  mySpaceGlobals.buttonUP    ||
-		  mySpaceGlobals.buttonDOWN  ||
-		  mySpaceGlobals.buttonLEFT  ||
-		  mySpaceGlobals.buttonRIGHT   )):
+	if (!(mySpaceGlobals.buttonA   ||
+		mySpaceGlobals.buttonUP    ||
+		mySpaceGlobals.buttonDOWN  ||
+		mySpaceGlobals.buttonLEFT  ||
+		mySpaceGlobals.buttonRIGHT   )):
 		mySpaceGlobals.allowInput = 1;
 
 	if (mySpaceGlobals.allowInput):

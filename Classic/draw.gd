@@ -1,8 +1,7 @@
 extends Node2D
+class_name Draw
 
 var font
-
-class_name Draw
 
 func _init():
 	font = FontBitmap.getFont()
@@ -50,7 +49,7 @@ func drawString(g, xi, yi, string):
 	var i = 0;
 	for nexts in string:
 		i += 1
-		var next = ord(nexts)
+		var next = GDScript.ord(nexts)
 		# actually draw this char pixel by pixel, if it's within range
 		if (next >= 0 && next < 128):
 			var bitmap = font[next];
@@ -60,9 +59,9 @@ func drawString(g, xi, yi, string):
 						putAPixel(g, xi+y+i*8, yi+x, 0xff, 0xff, 0xff)
 
 func fillScreen(gr, r, g, b, a):
-	gr.editableScreen.unlock()
+#	gr.editableScreen.unlock()
 	gr.editableScreen.fill(Color(r, g, b))
-	gr.editableScreen.lock()
+#	gr.editableScreen.lock()
 
 # draw black rect all at once
 func fillRect(gr, ox, oy, width, height, r, g, b):

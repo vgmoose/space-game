@@ -1,6 +1,6 @@
 extends Node2D
-
 class_name FontBitmap
+
 # * 8x8 monochrome bitmap fonts for rendering
 # * Author: Daniel Hepper <daniel@hepper.net>
 # * 
