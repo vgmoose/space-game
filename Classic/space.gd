@@ -744,9 +744,9 @@ func displayPasswordScreen(mySpaceGlobals):
 
 #		draw.drawPasswordMenuCursor(mySpaceGlobals);
 		var password = "Password:"
-		var up_cur = "     "
+		var up_cur = [" ", " ", " ", " ", " "]
 		var cur_pw = "%05d" % mySpaceGlobals.passwordEntered
-		var down_cur = "     "
+		var down_cur = [" ", " ", " ", " ", " "]
 
 		# draw.draw arrow cursor varo cursor strings
 		up_cur[mySpaceGlobals.menuChoice] = 'v';
@@ -827,15 +827,15 @@ func addNewEnemies(mySpaceGlobals):
 func totallyRefreshState(mySpaceGlobals):
 
 	initGameState(mySpaceGlobals);
-	mySpaceGlobals.displayHowToPlay = 0;
-	mySpaceGlobals.firstShotFired = 0;
-	mySpaceGlobals.lives = 3;
-	mySpaceGlobals.playerExplodeFrame = 0;
-	mySpaceGlobals.score = 0;
-	mySpaceGlobals.level = 0;
-	mySpaceGlobals.dontKeepTrackOfScore =  0;
-	mySpaceGlobals.noEnemies = 0;
-	mySpaceGlobals.enemiesSeekPlayer = 0;
+	mySpaceGlobals["displayHowToPlay"] = 0;
+	mySpaceGlobals["firstShotFired"] = 0;
+	mySpaceGlobals["lives"] = 3;
+	mySpaceGlobals["playerExplodeFrame"] = 0;
+	mySpaceGlobals["score"] = 0;
+	mySpaceGlobals["level"] = 0;
+	mySpaceGlobals["dontKeepTrackOfScore"] =  0;
+	mySpaceGlobals["noEnemies"] = 0;
+	mySpaceGlobals["enemiesSeekPlayer"] = 0;
 
 func displayGameOver(mySpaceGlobals):
 	

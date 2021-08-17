@@ -8,9 +8,7 @@ func _init():
 	var images = Images.new()
 
 func flipBuffers(g):
-	# todo: commit set image data??
-	pass
-#	g.classicMain.update()
+	g.screenTexture.update(g.editableScreen)
 
 # This is the main function that does the grunt work of drawing to both screens. It takes in the
 # Services structure that is constructed in program.c, which contains the pointer to the function
@@ -49,7 +47,7 @@ func drawString(g, xi, yi, string):
 	var i = 0;
 	for nexts in string:
 		i += 1
-		var next = GDScript.ord(nexts)
+		var next = nexts.unicode_at(0)
 		# actually draw this char pixel by pixel, if it's within range
 		if (next >= 0 && next < 128):
 			var bitmap = font[next];

@@ -35,29 +35,30 @@ func _ready():
 	editableScreen = dynImage
 	
 	mySpaceGlobals = {
-		"buttonA": Input.is_action_pressed("ui_accept"),
-		"buttonB": Input.is_action_pressed("ui_cancel"),
-		"buttonUP": Input.is_action_pressed("ui_up"),
-		"buttonDOWN": Input.is_action_pressed("ui_down"),
-		"buttonRIGHT": Input.is_action_pressed("ui_right"),
-		"buttonLEFT": Input.is_action_pressed("ui_left"),
-		"buttonPLUS": Input.is_action_pressed("pause"),
+		"buttonA": false,
+		"buttonB": false,
+		"buttonUP": false,
+		"buttonDOWN": false,
+		"buttonRIGHT": false,
+		"buttonLEFT": false,
+		"buttonPLUS": false,
 		"rstick_x": 0,
 		"lstick_x": 0,
 		"rstick_y": 0,
 		"lstick_y": 0,
-		"touched": Input.is_mouse_button_pressed(1),
-		"allowInput": 1
+		"touched": false,
+		"allowInput": true
 	}
 	mySpaceGlobals["playerChoice"] = 0
 	mySpaceGlobals["playerExplodeFrame"] = 0
 	mySpaceGlobals["noEnemies"] = false
 	
 	graphics["classicMain"] = self
-	graphics["nxFont"] = false
+	graphics["nxFont"] = true
 	graphics["spaceGlobals"] = mySpaceGlobals
 	
 	graphics["editableScreen"] = editableScreen
+	graphics["screenTexture"] = screenTexture
 
 	graphics["flipColor"] = 0;
 
@@ -171,12 +172,12 @@ func _process(delta):
 #	editableScreen.lock()
 
 	# Get the status of the controller
-	mySpaceGlobals.buttonA = Input.is_action_pressed("ui_accept")
-	mySpaceGlobals.buttonB = Input.is_action_pressed("ui_cancel")
-	mySpaceGlobals.buttonUP    = Input.is_action_pressed("ui_up")
-	mySpaceGlobals.buttonDOWN  = Input.is_action_pressed("ui_down")
-	mySpaceGlobals.buttonRIGHT = Input.is_action_pressed("ui_right")
-	mySpaceGlobals.buttonLEFT  = Input.is_action_pressed("ui_left")
+	mySpaceGlobals.buttonA = Input.is_action_pressed("accept")
+	mySpaceGlobals.buttonB = Input.is_action_pressed("cancel")
+	mySpaceGlobals.buttonUP    = Input.is_action_pressed("up")
+	mySpaceGlobals.buttonDOWN  = Input.is_action_pressed("down")
+	mySpaceGlobals.buttonRIGHT = Input.is_action_pressed("right")
+	mySpaceGlobals.buttonLEFT  = Input.is_action_pressed("left")
 	mySpaceGlobals.buttonPLUS = Input.is_action_pressed("pause")
 
 	mySpaceGlobals.rstick_x = 0
@@ -235,8 +236,8 @@ func _process(delta):
 		space.checkPause(mySpaceGlobals);
 		
 #	editableScreen.unlock()
-#	screenTexture.set_data(editableScreen)
-	screenImage.texture = screenTexture
+#	screenTexture.update(editableScreen)
+#	screenImage.texture = screenTexture
 
 	# To exit the game
 #		if (mySpaceGlobals.button & PAD_BUTTON_MINUS):
