@@ -15,12 +15,16 @@ var gamepad
 
 var initialized = false
 
+var labelController
+
 func _ready():
 	player = find_node("AudioStreamPlayer")
 	screenImage = find_node("TextureRect")
 	gamepad = find_node("Gamepad")
-	size_changed()
-	get_tree().get_root().connect("size_changed", self.size_changed)
+	labelController = find_node("LabelController")
+
+#	get_tree().get_root().connect("size_changed", self.size_changed)
+	get_tree().get_root().connect("size_changed", self, "size_changed")
 	
 	var imageTexture = ImageTexture.new()
 	var dynImage = Image.new()
@@ -33,6 +37,8 @@ func _ready():
 	
 	screenTexture = imageTexture
 	editableScreen = dynImage
+	
+#	labelController.drawString("start-game", "Start Game", 10, 10)
 	
 	mySpaceGlobals = {
 		"buttonA": false,
@@ -54,8 +60,9 @@ func _ready():
 	mySpaceGlobals["noEnemies"] = false
 	
 	graphics["classicMain"] = self
-	graphics["nxFont"] = true
+	graphics["nxFont"] = false
 	graphics["spaceGlobals"] = mySpaceGlobals
+	graphics["labelController"] = labelController
 	
 	graphics["editableScreen"] = editableScreen
 	graphics["screenTexture"] = screenTexture
@@ -91,6 +98,8 @@ func _ready():
 	mySpaceGlobals["tripleShot"] = false
 	mySpaceGlobals["doubleShot"] = false
 	
+	size_changed()
+	
 	program_start()
 
 var mySpaceGlobals
@@ -104,6 +113,11 @@ func size_changed():
 	SCALER = max(min(int(windowSize.x / width), int(windowSize.y / height)), 1)
 	screenImage.rect_scale = Vector2(SCALER, SCALER)
 	screenImage.rect_position = Vector2(windowSize.x/2 - (width*SCALER)/2, windowSize.y/2 - (height*SCALER)/2)
+
+	# position our non-nxFont fonts
+	labelController.rect_position = screenImage.rect_position
+	labelController.multiplier = SCALER
+	labelController.updateFont()
 
 	gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
 	gamepad.rect_position = Vector2(
@@ -120,9 +134,7 @@ func program_start():
 	for x in range(100):
 		var levelCode = int(trigmath.prand()*100000)
 		mySpaceGlobals.passwordList.append(levelCode)
-#	print(mySpaceGlobals.passwordList[1])
 
-#	print("About to set the time\n");
 	#  set the starting time
 	randomize()
 	mySpaceGlobals["seed"] = randi()
@@ -169,7 +181,7 @@ func _process(delta):
 #	Engine.set_target_fps(60)
 #	print(Engine.get_frames_per_second())
 	# get lock for drawing
-#	editableScreen.lock()
+	editableScreen.lock()
 
 	# Get the status of the controller
 	mySpaceGlobals.buttonA = Input.is_action_pressed("accept")
@@ -180,10 +192,14 @@ func _process(delta):
 	mySpaceGlobals.buttonLEFT  = Input.is_action_pressed("left")
 	mySpaceGlobals.buttonPLUS = Input.is_action_pressed("pause")
 
-	mySpaceGlobals.rstick_x = 0
-	mySpaceGlobals.lstick_x = 0
-	mySpaceGlobals.rstick_y = 0
-	mySpaceGlobals.lstick_y = 0
+#	mySpaceGlobals.rstick_x = Input.get_axis("shoot_left", "shoot_right")
+#	mySpaceGlobals.lstick_x = Input.get_axis("left", "right")
+#	mySpaceGlobals.rstick_y = Input.get_axis("shoot_down", "shoot_up")
+#	mySpaceGlobals.lstick_y = Input.get_axis("down", "up")
+	mySpaceGlobals.rstick_x = Input.get_joy_axis(1, 0)
+	mySpaceGlobals.lstick_x = Input.get_joy_axis(1, 1)
+	mySpaceGlobals.rstick_y = Input.get_joy_axis(0, 0)
+	mySpaceGlobals.lstick_y = Input.get_joy_axis(0, 1)
 
 	mySpaceGlobals.touched = Input.is_mouse_button_pressed(1)
 
@@ -235,9 +251,9 @@ func _process(delta):
 		#  check for pausing
 		space.checkPause(mySpaceGlobals);
 		
-#	editableScreen.unlock()
-#	screenTexture.update(editableScreen)
-#	screenImage.texture = screenTexture
+	editableScreen.unlock()
+	screenTexture.set_data(editableScreen)
+	screenImage.texture = screenTexture
 
 	# To exit the game
 #		if (mySpaceGlobals.button & PAD_BUTTON_MINUS):

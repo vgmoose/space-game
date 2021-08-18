@@ -8,7 +8,8 @@ func _init():
 	var images = Images.new()
 
 func flipBuffers(g):
-	g.screenTexture.update(g.editableScreen)
+#	g.screenTexture.update(g.editableScreen)
+	pass
 
 # This is the main function that does the grunt work of drawing to both screens. It takes in the
 # Services structure that is constructed in program.c, which contains the pointer to the function
@@ -20,34 +21,34 @@ func putAPixel(gr, x, y, r, g, b):
 		var temp = r;
 		r = b;
 		b = temp;
-	
-#	x *= 2;
-#	y *= 2;
 
 	if x < 0 or x >= 427 or y < 0 or y >= 240 or gr.editableScreen == null:
 		return
 	
 	gr.editableScreen.set_pixel(x, y, Color(r/255.0, g/255.0, b/255.0))
 
-#	draw_rect(Rect2(x, y, 1, 1), Color(r/255.0, g/255.0, b/255.0))
-#
-#	gr.pixels.append(Vector2(x, y))
-#	gr.colors.append(Color(r/255.0, g/255.0, b/255.0))
-
 func drawString(g, xi, yi, string):
 	if not g.nxFont:
 		# the bitmap font is only used with the nxFont enabled
+		var id = xi*1000+yi
+		g.labelController.drawString(id, string, xi, yi)
+		g.labelController.makeVisible(id)
 		return
 	# for every character in the string, if it's within range, render it at the current position
 	# and move over 8 characters
 
 	xi *= 6.25;
 	yi *= 13;
+	
+	if yi == 0:
+		# a little bump for the top row never hurt anyone
+		yi = 5
 
 	var i = 0;
 	for nexts in string:
 		i += 1
-		var next = nexts.unicode_at(0)
+#		var next = nexts.unicode_at(0)
+		var next = ord(nexts)
 		# actually draw this char pixel by pixel, if it's within range
 		if (next >= 0 && next < 128):
 			var bitmap = font[next];
@@ -57,9 +58,9 @@ func drawString(g, xi, yi, string):
 						putAPixel(g, xi+y+i*8, yi+x, 0xff, 0xff, 0xff)
 
 func fillScreen(gr, r, g, b, a):
-#	gr.editableScreen.unlock()
+	gr.editableScreen.unlock()
 	gr.editableScreen.fill(Color(r, g, b))
-#	gr.editableScreen.lock()
+	gr.editableScreen.lock()
 
 # draw black rect all at once
 func fillRect(gr, ox, oy, width, height, r, g, b):

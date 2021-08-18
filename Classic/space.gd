@@ -112,6 +112,7 @@ func _init(mySpaceGlobals):
 		mySpaceGlobals.enemies.append(enemy)
 
 func blackout(g):
+	g.labelController.makeAllInvisible()
 	draw.fillScreen(g, 0,0,0,1)
 
 func increaseScore(mySpaceGlobals, inc):
@@ -452,11 +453,11 @@ func renderTexts(mySpaceGlobals):
 		score = "Score: %09d" % mySpaceGlobals.score
 	draw.drawString(mySpaceGlobals.graphics, 0, 0, score);
 
-	var level = "Lv %d" % (mySpaceGlobals.level+1)
-	draw.drawString(mySpaceGlobals.graphics, 30, 0, level);
+	var level = "   Lv %d" % (mySpaceGlobals.level+1)
+	draw.drawString(mySpaceGlobals.graphics, 27, 0, level);
 
-	var lives = "Lives: %d" % mySpaceGlobals.lives
-	draw.drawString(mySpaceGlobals.graphics, 55, 0, lives);
+	var lives = "   Lives: %d" % mySpaceGlobals.lives
+	draw.drawString(mySpaceGlobals.graphics, 52, 0, lives);
 
 	if (mySpaceGlobals.displayHowToPlay):
 		var nag = "Rapid fire with right stick or touch!"
@@ -544,12 +545,12 @@ func displayTitle(mySpaceGlobals):
 		var license = "MIT License"
 
 		var play = "Start Game"
-		var password = "Password"
+		var password = " Password"
 
 		#display the menu under it
 		draw.drawString(mySpaceGlobals.graphics, 37, 10, credits);
 		draw.drawString(mySpaceGlobals.graphics, 25, 13, play);
-		draw.drawString(mySpaceGlobals.graphics, 26, 14, password);
+		draw.drawString(mySpaceGlobals.graphics, 25, 14, password);
 
 		draw.drawString(mySpaceGlobals.graphics, 40, 17, musiccredits);
 		draw.drawString(mySpaceGlobals.graphics, 0, 17, license);
@@ -647,10 +648,10 @@ func displayPause(mySpaceGlobals):
 
 		# display the password here
 		var resume = "Resume"
-		var quit = "Quit"
+		var quit = " Quit"
 
 		draw.drawString(mySpaceGlobals.graphics, 27, 13, resume);
-		draw.drawString(mySpaceGlobals.graphics, 28, 14, quit);
+		draw.drawString(mySpaceGlobals.graphics, 27, 14, quit);
 
 		drawMenuCursor(mySpaceGlobals);
 
@@ -754,9 +755,9 @@ func displayPasswordScreen(mySpaceGlobals):
 
 		draw.drawString(mySpaceGlobals.graphics, 19, 8, password);
 
-		draw.drawString(mySpaceGlobals.graphics, 32, 7, up_cur);
+		draw.drawString(mySpaceGlobals.graphics, 32, 7, "%s%s%s%s%s" % up_cur)
 		draw.drawString(mySpaceGlobals.graphics, 32, 8, cur_pw);
-		draw.drawString(mySpaceGlobals.graphics, 32, 9, down_cur);
+		draw.drawString(mySpaceGlobals.graphics, 32, 9, "%s%s%s%s%s" % down_cur)
 
 		draw.flipBuffers(mySpaceGlobals.graphics);
 		mySpaceGlobals.invalid = 0;
@@ -854,10 +855,10 @@ func displayGameOver(mySpaceGlobals):
 			draw.drawString(mySpaceGlobals.graphics, 21, 8, passw);
 
 		var resume = "Try Again"
-		var quit = "Quit"
+		var quit = "   Quit"
 
 		draw.drawString(mySpaceGlobals.graphics, 25, 13, resume);
-		draw.drawString(mySpaceGlobals.graphics, 28, 14, quit);
+		draw.drawString(mySpaceGlobals.graphics, 25, 14, quit);
 
 		self.drawMenuCursor(mySpaceGlobals);
 
@@ -967,6 +968,11 @@ func tryPassword(mySpaceGlobals):
 	# toggle the space nx bitmap font
 	if mySpaceGlobals.passwordEntered == 11111:
 		mySpaceGlobals.graphics.nxFont = not mySpaceGlobals.graphics.nxFont
+	
+	# toggle the audio playing
+	if mySpaceGlobals.passwordEntered == 22222:
+		var player = mySpaceGlobals.graphics.classicMain.player
+		player.playing = not player.playing
 
 	# 100 passwords, one for each level
 	for x in range(100):
