@@ -46,6 +46,9 @@ _global_script_class_icons={
 
 config/name="Space Game"
 run/main_scene="res://Classic/Classic.tscn"
+boot_splash/image="res://Classic/logo.png"
+boot_splash/fullsize=false
+boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://icon.png"
 
 [display]

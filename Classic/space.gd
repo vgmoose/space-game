@@ -538,7 +538,7 @@ func displayTitle(mySpaceGlobals):
 		# display the bitmap in upper center screen
 		draw.drawBitmap(mySpaceGlobals.graphics, 107, 30, 200, 100, title, title_palette);
 
-		var credits = "by vgmoose";
+		var credits = "  by vgmoose";
 
 		var musiccredits = "~*cruise*~ by (T-T)b"
 
@@ -548,7 +548,7 @@ func displayTitle(mySpaceGlobals):
 		var password = " Password"
 
 		#display the menu under it
-		draw.drawString(mySpaceGlobals.graphics, 37, 10, credits);
+		draw.drawString(mySpaceGlobals.graphics, 35, 10, credits);
 		draw.drawString(mySpaceGlobals.graphics, 25, 13, play);
 		draw.drawString(mySpaceGlobals.graphics, 25, 14, password);
 

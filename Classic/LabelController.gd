@@ -80,6 +80,8 @@ func drawString(id, text, x, y):
 		text = "Password"
 	text = text.replace("   L", "L")
 	text = text.replace("   Quit", "Quit").replace(" Quit", "Quit")
+	text = text.replace("  by", "by").replace("~*", "  ~*").replace("MIT", " MIT")
+	text = text.replace("touch!", "click and drag!").replace("Rapid", "   Rapid")
 #	text = text.replace("MIT", " MIT")
 	label.text = text
 	label.visible = true
