@@ -165,8 +165,6 @@ func p1Shoot(mySpaceGlobals):
 		# shoot a bullet
 		# find an inactive bullet
 		var theta = mySpaceGlobals.angle - PI
-		
-		var bulletSpeed = 9 * FPS_MULT * mySpaceGlobals.delta
 
 		var bulletsShot = int(mySpaceGlobals.doubleShot)
 		for xx in range(BULLET_COUNT):
@@ -176,8 +174,8 @@ func p1Shoot(mySpaceGlobals):
 				bulletsShot += 1
 				mySpaceGlobals.bullets[xx].x = mySpaceGlobals.p1X + 18 + offsetX;
 				mySpaceGlobals.bullets[xx].y = mySpaceGlobals.p1Y + 18 + offsetY;
-				mySpaceGlobals.bullets[xx].m_x = bulletSpeed * sin(theta); # bulletSpeed is the desired bullet speed
-				mySpaceGlobals.bullets[xx].m_y = bulletSpeed * cos(theta); # we have to solve for the hypotenuese
+				mySpaceGlobals.bullets[xx].m_x = 9 * sin(theta); # 9 is the desired bullet speed
+				mySpaceGlobals.bullets[xx].m_y = 9 * cos(theta); # we have to solve for the hypotenuese
 				mySpaceGlobals.bullets[xx].active = 1;
 				mySpaceGlobals.firstShotFired = 1;
 				if (mySpaceGlobals.score >= 1000):
@@ -344,7 +342,7 @@ func makeRotationMatrix(angle, width, original, target, transIndex):
 		for iy in range(width):
 			# rotate the pixel by the angle varo a new spot in the rotation matrix
 			var oldx = int((ix-woffset)*cos(angle) + (iy-woffset)*sin(angle) + woffset);
-			var oldy = int((ix-woffset)*sin(angle) + (iy-woffset)*cos(angle) + woffset);
+			var oldy = int((ix-woffset)*sin(angle) - (iy-woffset)*cos(angle) + woffset);
 
 			if (oldx > width): oldx = width-1;
 			if (oldy > width): oldy = width-1;
@@ -430,8 +428,8 @@ func moveBullets(mySpaceGlobals):
 	# for all active bullets, advance them
 	for x in range(BULLET_COUNT):
 		if (mySpaceGlobals.bullets[x].active == 1):
-			mySpaceGlobals.bullets[x].x += mySpaceGlobals.bullets[x].m_x;
-			mySpaceGlobals.bullets[x].y += mySpaceGlobals.bullets[x].m_y;
+			mySpaceGlobals.bullets[x].x += mySpaceGlobals.bullets[x].m_x * FPS_MULT * mySpaceGlobals.delta
+			mySpaceGlobals.bullets[x].y += mySpaceGlobals.bullets[x].m_y * FPS_MULT * mySpaceGlobals.delta
 
 			if (mySpaceGlobals.bullets[x].x > xMaxBoundry ||
 				mySpaceGlobals.bullets[x].x < xMinBoundry ||
