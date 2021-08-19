@@ -2,7 +2,7 @@
 This is a Godot port of the Wii U homebrew app [Space Game](https://github.com/vgmoose/wiiu-space) (and [Space Game NX](https://github.com/vgmoose/space-nx)). The goal of this port is to more easily bring it to other devices, as running homebrew can be a complicated process.
 
 ### Downloads
-Linux, Mac, and Windows builds are available [here](https://github.com/vgmoose/space-game/releases).
+Linux, Mac, and Windows builds are available [here](https://github.com/vgmoose/space-game/actions). A video of the gameplay is [here](https://www.youtube.com/watch?v=KMuicPmOIHw).
 
 <img width="410" alt="Screen Shot 2021-08-18 at 10 29 57 PM" src="https://user-images.githubusercontent.com/2467473/130005538-674e0de2-c7ad-4568-b638-1be8c8e4f2f2.png"> <img width="410" alt="Screen Shot 2021-08-18 at 10 31 29 PM" src="https://user-images.githubusercontent.com/2467473/130005559-661d7db4-5808-46bb-adbe-9f3783e4c9e4.png">
 
