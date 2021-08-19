@@ -152,7 +152,7 @@ func p1Shoot(mySpaceGlobals):
 	var ydif = 0;
 
 	xdif = mySpaceGlobals.p1X - (mySpaceGlobals.p1X + (mySpaceGlobals.rstick_x * 18));
-	ydif = mySpaceGlobals.p1Y - (mySpaceGlobals.p1Y - (mySpaceGlobals.rstick_y * 18));
+	ydif = mySpaceGlobals.p1Y - (mySpaceGlobals.p1Y + (mySpaceGlobals.rstick_y * 18));
 
 	# if no joysticks were touched, but a touch is present
 	if (xdif == 0 && ydif == 0 && mySpaceGlobals.touched):
