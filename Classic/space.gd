@@ -20,7 +20,7 @@ var xMaxBoundry = 427
 var yMinBoundry = 0
 var yMaxBoundry = 240
 
-var MAX_ENEMIES = 20
+var MAX_ENEMIES = 100
 
 #var target = 
 var images = Images.new()
@@ -35,15 +35,26 @@ var compressed_ship = images.compressed_ship
 var compressed_ship2 = images.compressed_ship2
 var ship_palette = images.ship_palette
 var ship2_palette = images.ship2_palette
-var compressed_boss = images.compressed_boss
-var boss_palette = images.boss_palette
-var compressed_boss2 = images.compressed_boss2
-var boss2_palette = images.boss2_palette
+#var compressed_boss = images.compressed_boss
+#var boss_palette = images.boss_palette
+#var compressed_boss2 = images.compressed_boss2
+#var boss2_palette = images.boss2_palette
 
 var draw
 var trigmath
 
 var BULLET_COUNT = 20
+
+# the original Space Game uses a few different speeds (bullet, player, enemies)
+# but it didn't run at a reliable 60 fps (1/60 deltas)
+# 30 fps "felt" too slow, so let's go with 40 fps
+# as a baseline for how fast the game should expect to move
+# this multiplier will modify all original game speeds to scale them back
+# to one that feels more like how it ran on console
+# it can be removed with password 60185
+var FPS_MULT = 40
+
+var spedUpMusic
 
 func initBullets(mySpaceGlobals):
 	mySpaceGlobals["bullets"] = []
@@ -63,6 +74,8 @@ func _init(mySpaceGlobals):
 	mySpaceGlobals["invalid"]= 1
 	
 	mySpaceGlobals["enemy"] = []
+	
+	spedUpMusic = load("res://Classic/speedcruise.mp3")
 	
 	for x in range(36):
 		rotated_ship.append([])
@@ -151,7 +164,10 @@ func p1Shoot(mySpaceGlobals):
 
 		# shoot a bullet
 		# find an inactive bullet
-		var theta = mySpaceGlobals.angle - PI;
+		var theta = mySpaceGlobals.angle - PI
+		
+		var bulletSpeed = 9 * FPS_MULT * mySpaceGlobals.delta
+
 		var bulletsShot = int(mySpaceGlobals.doubleShot)
 		for xx in range(BULLET_COUNT):
 			if (mySpaceGlobals.bullets[xx].active != 1):
@@ -160,8 +176,8 @@ func p1Shoot(mySpaceGlobals):
 				bulletsShot += 1
 				mySpaceGlobals.bullets[xx].x = mySpaceGlobals.p1X + 18 + offsetX;
 				mySpaceGlobals.bullets[xx].y = mySpaceGlobals.p1Y + 18 + offsetY;
-				mySpaceGlobals.bullets[xx].m_x = 9*sin(theta); # 9 is the desired bullet speed
-				mySpaceGlobals.bullets[xx].m_y = 9*cos(theta); # we have to solve for the hypotenuese
+				mySpaceGlobals.bullets[xx].m_x = bulletSpeed * sin(theta); # bulletSpeed is the desired bullet speed
+				mySpaceGlobals.bullets[xx].m_y = bulletSpeed * cos(theta); # we have to solve for the hypotenuese
 				mySpaceGlobals.bullets[xx].active = 1;
 				mySpaceGlobals.firstShotFired = 1;
 				if (mySpaceGlobals.score >= 1000):
@@ -201,13 +217,14 @@ func p1Move(mySpaceGlobals):
 	mySpaceGlobals.invalid = 1;
 
 	# accept x and y movement from either stick
-	mySpaceGlobals.p1X += xdif*5;
-	mySpaceGlobals.p1Y -= ydif*5;
+	var playerMaxSpeed = 5 * FPS_MULT * mySpaceGlobals.delta
+	mySpaceGlobals.p1X += xdif * playerMaxSpeed;
+	mySpaceGlobals.p1Y -= ydif * playerMaxSpeed;
 
 	# calculate angle to face
 	mySpaceGlobals.angle = atan2(ydif, xdif) - PI / 2.0;
 
-	# update score if on a frame divisible by 60 (gain 10 povars every second)
+	# update score if on a frame divisible by 60 (gain ~10 points every second)
 	if (mySpaceGlobals.frame % 60 == 0):
 		increaseScore(mySpaceGlobals, 10);
 
@@ -287,18 +304,21 @@ func makeScaleMatrix(frame, width, original, target, transIndex):
 			target[newx][newy] = original[x][y];
 
 func handleExplosions(mySpaceGlobals):
+	
+	# explode "animation" plays at half-speed, to be more visible
+	var explosionCounter = 0.5
 
 	for x in range(MAX_ENEMIES):
 		if (mySpaceGlobals.enemies[x].position.active > 1):
 			makeScaleMatrix(mySpaceGlobals.enemies[x].position.active/2.0, 23, mySpaceGlobals.enemy, mySpaceGlobals.enemies[x].rotated_sprite, 9);
-			mySpaceGlobals.enemies[x].position.active += 1;
+			mySpaceGlobals.enemies[x].position.active += explosionCounter
 
 			if (mySpaceGlobals.enemies[x].position.active > 20):
 				mySpaceGlobals.enemies[x].position.active = 0;
 
 	if (mySpaceGlobals.playerExplodeFrame > 1):
 		makeScaleMatrix(mySpaceGlobals.playerExplodeFrame, 36, orig_ship, rotated_ship, mySpaceGlobals.transIndex);
-		mySpaceGlobals.playerExplodeFrame += 1;
+		mySpaceGlobals.playerExplodeFrame += explosionCounter
 		mySpaceGlobals.invalid = 1;
 
 		if (mySpaceGlobals.playerExplodeFrame > 20):
@@ -423,8 +443,8 @@ func moveBullets(mySpaceGlobals):
 
 	for x in range(MAX_ENEMIES):
 		if (mySpaceGlobals.enemies[x].position.active == 1):
-			mySpaceGlobals.enemies[x].position.x += mySpaceGlobals.enemies[x].position.m_x;
-			mySpaceGlobals.enemies[x].position.y += mySpaceGlobals.enemies[x].position.m_y;
+			mySpaceGlobals.enemies[x].position.x += mySpaceGlobals.enemies[x].position.m_x * FPS_MULT * mySpaceGlobals.delta;
+			mySpaceGlobals.enemies[x].position.y += mySpaceGlobals.enemies[x].position.m_y * FPS_MULT * mySpaceGlobals.delta;
 
 			if (mySpaceGlobals.enemies[x].position.x > xMaxBoundry ||
 				mySpaceGlobals.enemies[x].position.x < xMinBoundry ||
@@ -433,7 +453,7 @@ func moveBullets(mySpaceGlobals):
 				mySpaceGlobals.enemies[x].position.active = 0;
 
 			# rotate the enemy slowly
-			mySpaceGlobals.enemies[x].angle += 0.02;
+			mySpaceGlobals.enemies[x].angle += 0.02 * FPS_MULT * mySpaceGlobals.delta;
 			if (mySpaceGlobals.enemies[x].angle > 6.28318530):
 				mySpaceGlobals.enemies[x].angle = 0.0;
 
@@ -491,7 +511,7 @@ func reset(mySpaceGlobals):
 func initGameState(mySpaceGlobals):
 
 #	# init bullets
-	for x in range(20):
+	for x in range(BULLET_COUNT):
 		mySpaceGlobals.bullets[x].active = 0;
 
 	# init enemies
@@ -834,7 +854,7 @@ func totallyRefreshState(mySpaceGlobals):
 	mySpaceGlobals["playerExplodeFrame"] = 0;
 	mySpaceGlobals["score"] = 0;
 	mySpaceGlobals["level"] = 0;
-	mySpaceGlobals["dontKeepTrackOfScore"] =  0;
+	mySpaceGlobals["dontKeepTrackOfScore"] = int(mySpaceGlobals.doubleShot or mySpaceGlobals.tripleShot)
 	mySpaceGlobals["noEnemies"] = 0;
 	mySpaceGlobals["enemiesSeekPlayer"] = 0;
 
@@ -915,7 +935,7 @@ func tryPassword(mySpaceGlobals):
 		mySpaceGlobals.transIndex = 5;
 		mySpaceGlobals.state = 7;
 
-	# double shot
+	# double shot (previously turn player into boss1)
 	if (mySpaceGlobals.passwordEntered == 24177):
 		mySpaceGlobals.tripleShot = true
 		mySpaceGlobals.doubleShot = true
@@ -928,20 +948,20 @@ func tryPassword(mySpaceGlobals):
 #		mySpaceGlobals.transIndex = 39;
 		mySpaceGlobals.state = 7;
 #
-#	# triple shot
+#	# triple shot (previously turn player into boss2)
 	if (mySpaceGlobals.passwordEntered == 37124):
 		mySpaceGlobals.tripleShot = true
 		mySpaceGlobals.doubleShot = false
 		BULLET_COUNT = 100
 		initBullets(mySpaceGlobals)
+		mySpaceGlobals.dontKeepTrackOfScore = 1;
 		# rest in peace Etika
-#		OS.shell_open("https://www.youtube.com/watch?v=1qX75J4_-e8")
+		OS.shell_open("https://www.youtube.com/watch?v=1qX75J4_-e8")
 #		mySpaceGlobals.playerChoice = 2;
 #		decompress_sprite(740, 36, 36, compressed_boss, orig_ship, 39);
 #		mySpaceGlobals.curPalette = boss_palette;
 #		mySpaceGlobals.transIndex = 39;
 		mySpaceGlobals.state = 7;
-
 
 	# Enemies come right for you (kamikaze mode)
 	if (mySpaceGlobals.passwordEntered == 30236):
@@ -961,18 +981,52 @@ func tryPassword(mySpaceGlobals):
 
 	# flip R and B channels for all colors
 	if (mySpaceGlobals.passwordEntered == 77777):
-	
 		mySpaceGlobals.graphics.flipColor = !mySpaceGlobals.graphics.flipColor;
 		mySpaceGlobals.state = 27;
 		
 	# toggle the space nx bitmap font
 	if mySpaceGlobals.passwordEntered == 11111:
 		mySpaceGlobals.graphics.nxFont = not mySpaceGlobals.graphics.nxFont
+		mySpaceGlobals.graphics.classicMain.size_changed()
 	
 	# toggle the audio playing
 	if mySpaceGlobals.passwordEntered == 22222:
 		var player = mySpaceGlobals.graphics.classicMain.player
 		player.playing = not player.playing
+	
+	# play whole game at faster speed, and switch audio
+	if mySpaceGlobals.passwordEntered == 60185:
+		if FPS_MULT == 60:
+			FPS_MULT = 80 # go even further beyond
+		else:
+			FPS_MULT = 60
+		var player = mySpaceGlobals.graphics.classicMain.player
+		var isPlaying = player.playing
+		player.stream = spedUpMusic
+		player.playing = isPlaying
+		mySpaceGlobals.state = 27;
+	
+	# some t-tb tracks
+	if mySpaceGlobals.passwordEntered == 00001:
+		OS.shell_open("https://t-tb.bandcamp.com/track/cruise")
+	
+	if mySpaceGlobals.passwordEntered == 00002:
+		OS.shell_open("https://t-tb.bandcamp.com/track/scream-pictures")
+	
+	if mySpaceGlobals.passwordEntered == 00003:
+		OS.shell_open("https://t-tb.bandcamp.com/track/slimers")
+	
+	if mySpaceGlobals.passwordEntered == 00004:
+		OS.shell_open("https://t-tb.bandcamp.com/track/frog-song")
+	
+	if mySpaceGlobals.passwordEntered == 00005:
+		OS.shell_open("https://www.youtube.com/watch?v=Tb02CNlhkPA")
+	
+	if mySpaceGlobals.passwordEntered == 00006:
+		OS.shell_open("https://www.youtube.com/watch?v=a6oWk-BJ8bI")
+	
+	if mySpaceGlobals.passwordEntered == 00007:
+		OS.shell_open("https://www.youtube.com/watch?v=wcMLFMsIVis")
 
 	# 100 passwords, one for each level
 	for x in range(100):

@@ -17,11 +17,18 @@ var initialized = false
 
 var labelController
 
+var gamepadTexture
+var tabletTexture
+
+var startedMusic = false
+
 func _ready():
 	player = find_node("AudioStreamPlayer")
 	screenImage = find_node("TextureRect")
 	gamepad = find_node("Gamepad")
 	labelController = find_node("LabelController")
+	gamepadTexture = gamepad.texture
+	tabletTexture =  load("res://Classic/tablet.png")
 
 #	get_tree().get_root().connect("size_changed", self.size_changed)
 	get_tree().get_root().connect("size_changed", self, "size_changed")
@@ -118,12 +125,26 @@ func size_changed():
 	labelController.rect_position = screenImage.rect_position
 	labelController.multiplier = SCALER
 	labelController.updateFont()
-
-	gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
-	gamepad.rect_position = Vector2(
-		-gamepad.rect_scale.x*0.2237*gamepad.rect_size.x + screenImage.rect_position.x,
-		-gamepad.rect_scale.y*0.2393*gamepad.rect_size.y + screenImage.rect_position.y
-	)
+	
+#	var prevTexture = gamepad.texture
+	
+	if mySpaceGlobals.graphics.nxFont:
+		gamepad.texture = tabletTexture
+		gamepad.rect_scale = Vector2(0.5*0.49*SCALER, 0.5*0.49*SCALER)
+		gamepad.rect_size = Vector2(3006, 1282)
+		gamepad.rect_position = Vector2(
+			-gamepad.rect_scale.x*0.215*gamepad.rect_size.x + screenImage.rect_position.x,
+			-gamepad.rect_scale.y*0.11*gamepad.rect_size.y + screenImage.rect_position.y
+		)
+	else:
+#		print("updating gamepad")
+		gamepad.texture = gamepadTexture
+		gamepad.rect_scale = Vector2(0.5*0.83*SCALER, 0.5*0.83*SCALER)
+		gamepad.rect_size = Vector2(1875, 1103)
+		gamepad.rect_position = Vector2(
+			-gamepad.rect_scale.x*0.2237*gamepad.rect_size.x + screenImage.rect_position.x,
+			-gamepad.rect_scale.y*0.2393*gamepad.rect_size.y + screenImage.rect_position.y
+		)
 
 func program_start():
 	initialized = true
@@ -182,6 +203,10 @@ func _process(delta):
 #	print(Engine.get_frames_per_second())
 	# get lock for drawing
 	editableScreen.lock()
+	
+	# keep track of the time inbetween frames
+	# (this is new for space game)
+	mySpaceGlobals.delta = delta
 
 	# Get the status of the controller
 	mySpaceGlobals.buttonA = Input.is_action_pressed("accept")
@@ -197,8 +222,8 @@ func _process(delta):
 #	mySpaceGlobals.rstick_y = Input.get_axis("shoot_down", "shoot_up")
 #	mySpaceGlobals.lstick_y = Input.get_axis("down", "up")
 	mySpaceGlobals.rstick_x = Input.get_joy_axis(1, 0)
-	mySpaceGlobals.lstick_x = Input.get_joy_axis(1, 1)
-	mySpaceGlobals.rstick_y = Input.get_joy_axis(0, 0)
+	mySpaceGlobals.lstick_x = Input.get_joy_axis(0, 0)
+	mySpaceGlobals.rstick_y = Input.get_joy_axis(1, 1)
 	mySpaceGlobals.lstick_y = Input.get_joy_axis(0, 1)
 
 	mySpaceGlobals.touched = Input.is_mouse_button_pressed(1)
@@ -254,6 +279,10 @@ func _process(delta):
 	editableScreen.unlock()
 	screenTexture.set_data(editableScreen)
 	screenImage.texture = screenTexture
+	
+	if not startedMusic:
+		player.playing = true
+		startedMusic = true
 
 	# To exit the game
 #		if (mySpaceGlobals.button & PAD_BUTTON_MINUS):
