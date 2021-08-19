@@ -4,7 +4,7 @@ This is a Godot port of the Wii U homebrew app [Space Game](https://github.com/v
 ### Downloads
 Linux, Mac, and Windows builds are available [here](https://github.com/vgmoose/space-game/releases).
 
-<img width="425" alt="Screen Shot 2021-08-18 at 10 29 57 PM" src="https://user-images.githubusercontent.com/2467473/130005538-674e0de2-c7ad-4568-b638-1be8c8e4f2f2.png"> <img width="425" alt="Screen Shot 2021-08-18 at 10 31 29 PM" src="https://user-images.githubusercontent.com/2467473/130005559-661d7db4-5808-46bb-adbe-9f3783e4c9e4.png">
+<img width="410" alt="Screen Shot 2021-08-18 at 10 29 57 PM" src="https://user-images.githubusercontent.com/2467473/130005538-674e0de2-c7ad-4568-b638-1be8c8e4f2f2.png"> <img width="410" alt="Screen Shot 2021-08-18 at 10 31 29 PM" src="https://user-images.githubusercontent.com/2467473/130005559-661d7db4-5808-46bb-adbe-9f3783e4c9e4.png">
 
 
 ### Credits and License
@@ -35,7 +35,7 @@ The big change is that now Space Game runs at 60fps when it can, and when it can
 
 The code `22222` is also added to toggle the music playing within the code, and some other passwords also had their functionality change. For example, the code `24177` now enables a new double firing function from the ship, whereas before it would transform the player's sprite. Some passwords also now also open URLs as easter eggs. Like in the original, certain cheats will disable the score counter. The code `77777` to swap the red and blue channels from the NX port is also present!
 
-<img width="425" alt="Screen Shot 2021-08-19 at 12 02 03 AM" src="https://user-images.githubusercontent.com/2467473/130005764-2e9437a1-4d2d-4710-a410-f9f65cf05231.png"> <img width="425" alt="Screen Shot 2021-08-19 at 12 01 31 AM" src="https://user-images.githubusercontent.com/2467473/130005776-3d1f634c-5348-458b-8af1-70aeabb74e86.png">
+<img width="410" alt="Screen Shot 2021-08-19 at 12 02 03 AM" src="https://user-images.githubusercontent.com/2467473/130005764-2e9437a1-4d2d-4710-a410-f9f65cf05231.png"> <img width="410" alt="Screen Shot 2021-08-19 at 12 01 31 AM" src="https://user-images.githubusercontent.com/2467473/130005776-3d1f634c-5348-458b-8af1-70aeabb74e86.png">
 
 
 ### A final note
