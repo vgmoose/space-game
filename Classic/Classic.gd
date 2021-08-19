@@ -221,9 +221,9 @@ func _process(delta):
 #	mySpaceGlobals.lstick_x = Input.get_axis("left", "right")
 #	mySpaceGlobals.rstick_y = Input.get_axis("shoot_down", "shoot_up")
 #	mySpaceGlobals.lstick_y = Input.get_axis("down", "up")
-	mySpaceGlobals.rstick_x = Input.get_joy_axis(1, 0)
+	mySpaceGlobals.rstick_x = Input.get_joy_axis(0, 2)
 	mySpaceGlobals.lstick_x = Input.get_joy_axis(0, 0)
-	mySpaceGlobals.rstick_y = Input.get_joy_axis(1, 1)
+	mySpaceGlobals.rstick_y = Input.get_joy_axis(0, 3)
 	mySpaceGlobals.lstick_y = Input.get_joy_axis(0, 1)
 
 	mySpaceGlobals.touched = Input.is_mouse_button_pressed(1)
