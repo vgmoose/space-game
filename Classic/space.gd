@@ -204,8 +204,8 @@ func p1Move(mySpaceGlobals):
 	# max out speed at 1 or -1 in both directions
 	xdif =  1 if (xdif >  1 || mySpaceGlobals.buttonRIGHT) else xdif;
 	xdif = -1 if (xdif < -1 || mySpaceGlobals.buttonLEFT)  else xdif;
-	ydif =  1 if (ydif >  1 || mySpaceGlobals.buttonUP)    else ydif;
-	ydif = -1 if (ydif < -1 || mySpaceGlobals.buttonDOWN)  else ydif;
+	ydif = -1 if (ydif < -1 || mySpaceGlobals.buttonUP)    else ydif;
+	ydif =  1 if (ydif >  1 || mySpaceGlobals.buttonDOWN)  else ydif;
 
 	# don't update angle if both are within -.1 < x < .1
 	# (this is an expensive check... 128 bytes compared to just ==0)
@@ -220,7 +220,7 @@ func p1Move(mySpaceGlobals):
 	mySpaceGlobals.p1Y += ydif * playerMaxSpeed;
 
 	# calculate angle to face
-	mySpaceGlobals.angle = atan2(ydif, xdif) - PI / 2.0;
+	mySpaceGlobals.angle = atan2(-ydif, xdif) - PI / 2.0;
 
 	# update score if on a frame divisible by 60 (gain ~10 points every second)
 	if (mySpaceGlobals.frame % 60 == 0):
