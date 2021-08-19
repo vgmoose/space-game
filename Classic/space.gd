@@ -219,7 +219,7 @@ func p1Move(mySpaceGlobals):
 	# accept x and y movement from either stick
 	var playerMaxSpeed = 5 * FPS_MULT * mySpaceGlobals.delta
 	mySpaceGlobals.p1X += xdif * playerMaxSpeed;
-	mySpaceGlobals.p1Y -= ydif * playerMaxSpeed;
+	mySpaceGlobals.p1Y += ydif * playerMaxSpeed;
 
 	# calculate angle to face
 	mySpaceGlobals.angle = atan2(ydif, xdif) - PI / 2.0;
@@ -344,7 +344,7 @@ func makeRotationMatrix(angle, width, original, target, transIndex):
 		for iy in range(width):
 			# rotate the pixel by the angle varo a new spot in the rotation matrix
 			var oldx = int((ix-woffset)*cos(angle) + (iy-woffset)*sin(angle) + woffset);
-			var oldy = int((ix-woffset)*sin(angle) - (iy-woffset)*cos(angle) + woffset);
+			var oldy = int((ix-woffset)*sin(angle) + (iy-woffset)*cos(angle) + woffset);
 
 			if (oldx > width): oldx = width-1;
 			if (oldy > width): oldy = width-1;
@@ -653,11 +653,11 @@ func doMenuAction(mySpaceGlobals):
 
 	var stickY = mySpaceGlobals.lstick_y + mySpaceGlobals.rstick_y;
 
-	if (mySpaceGlobals.buttonDOWN || stickY < -0.3):
+	if (mySpaceGlobals.buttonDOWN || stickY > 0.3):
 		mySpaceGlobals.menuChoice = 1;
 		mySpaceGlobals.invalid = 1;
 
-	if (mySpaceGlobals.buttonUP || stickY > 0.3):
+	if (mySpaceGlobals.buttonUP || stickY < -0.3):
 		mySpaceGlobals.menuChoice = 0;
 		mySpaceGlobals.invalid = 1;
 
