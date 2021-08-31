@@ -39,7 +39,7 @@ func _ready():
 	dynImage.create(427, 240, false, Image.FORMAT_RGB8)
 	dynImage.fill(Color(0, 0, 0))
 
-	imageTexture.create_from_image(dynImage)
+	imageTexture.create_from_image(dynImage, 0)
 	screenImage.texture = imageTexture
 	
 	screenTexture = imageTexture
